@@ -5,7 +5,6 @@ import torch.nn.functional as F
 from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertModel
 import config
 import numpy as np
-from multi_head_attention import MultihHeadAttention
 
 class EmotionClassifier(nn.Module):
     def __init__(self, n_classes, bert):
@@ -17,7 +16,6 @@ class EmotionClassifier(nn.Module):
         self.out_anger = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_fear = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_sorrow = nn.Linear(self.bert.config.hidden_size, n_classes)
-        # self.self_attention = MultihHeadAttention(4, 1)
 
     def forward(self, input_ids, attention_mask):
         _, pooled_output = self.bert(
@@ -37,15 +35,6 @@ class EmotionClassifier(nn.Module):
             'love': love, 'joy': joy, 'fright': fright,
             'anger': anger, 'fear': fear, 'sorrow': sorrow,
         }
-        # x = torch.cat((love, joy), 1)
-        # x = torch.cat((x, fright), 1)
-        # x = torch.cat((x, anger), 1)
-        # x = torch.cat((x, fear), 1)
-        # x = torch.cat((x, sorrow), 1)
-
-        # x = self.self_attention(x, x, x)
-
-        # return x
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型

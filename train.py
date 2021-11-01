@@ -4,8 +4,6 @@ from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertMod
 from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.tensorboard import SummaryWriter
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 import numpy as np
 import time
 import ipdb
@@ -16,6 +14,9 @@ from utils import load_checkpoint, save_checkpoint
 from predict import predict
 import config
 
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 
 # roberta
 PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
