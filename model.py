@@ -17,7 +17,7 @@ class EmotionClassifier(nn.Module):
         self.out_anger = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_fear = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_sorrow = nn.Linear(self.bert.config.hidden_size, n_classes)
-        # self.self_attention = MultihHeadAttention(4, 1)
+        self.self_attention = MultihHeadAttention(4, 1)
 
     def forward(self, input_ids, attention_mask):
         _, pooled_output = self.bert(
@@ -25,27 +25,31 @@ class EmotionClassifier(nn.Module):
             attention_mask=attention_mask,
             return_dict = False
         )
-        love = self.out_love(pooled_output)
-        joy = self.out_joy(pooled_output)
-        fright = self.out_fright(pooled_output)
-        anger = self.out_anger(pooled_output)
-        fear = self.out_fear(pooled_output)
-        sorrow = self.out_sorrow(pooled_output)
+        love = self.out_love(pooled_output).unsqueeze(1)
+        joy = self.out_joy(pooled_output).unsqueeze(1)
+        fright = self.out_fright(pooled_output).unsqueeze(1)
+        anger = self.out_anger(pooled_output).unsqueeze(1)
+        fear = self.out_fear(pooled_output).unsqueeze(1)
+        sorrow = self.out_sorrow(pooled_output).unsqueeze(1)
+
+        # ipdb.set_trace()
+        x = torch.cat((love, joy), 1)
+        x = torch.cat((x, fright), 1)
+        x = torch.cat((x, anger), 1)
+        x = torch.cat((x, fear), 1)
+        x = torch.cat((x, sorrow), 1)
+
+        # ipdb.set_trace()
+        x = self.self_attention(x, x, x)
+        # ipdb.set_trace()
+
+        return x
         
         # ipdb.set_trace()
-        return {
-            'love': love, 'joy': joy, 'fright': fright,
-            'anger': anger, 'fear': fear, 'sorrow': sorrow,
-        }
-        # x = torch.cat((love, joy), 1)
-        # x = torch.cat((x, fright), 1)
-        # x = torch.cat((x, anger), 1)
-        # x = torch.cat((x, fear), 1)
-        # x = torch.cat((x, sorrow), 1)
-
-        # x = self.self_attention(x, x, x)
-
-        # return x
+        # return {
+        #     'love': love, 'joy': joy, 'fright': fright,
+        #     'anger': anger, 'fear': fear, 'sorrow': sorrow,
+        # }
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
@@ -57,4 +61,5 @@ if __name__ == "__main__":
     print(input_ids.shape)
     print(attention_mask.shape)
     output = model(input_ids, attention_mask)
-    print(output)
+    # print(output)
+    print(output.shape)

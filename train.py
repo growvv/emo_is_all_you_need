@@ -57,15 +57,27 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
             attention_mask = sample["attention_mask"].to(config.device)
 
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask) 
 
-            loss_love = criterion(outputs['love'], sample['love'].to(config.device))
-            loss_joy = criterion(outputs['joy'], sample['joy'].to(config.device))
-            loss_fright = criterion(outputs['fright'], sample['fright'].to(config.device))
-            loss_anger = criterion(outputs['anger'], sample['anger'].to(config.device))
-            loss_fear = criterion(outputs['fear'], sample['fear'].to(config.device))
-            loss_sorrow = criterion(outputs['sorrow'], sample['sorrow'].to(config.device))
-            loss = loss_love + loss_joy + loss_fright + loss_anger + loss_fear + loss_sorrow
+            # target = torch.empty(64, 0)
+
+            love = sample['love'].to(config.device).unsqueeze(1)
+            joy = sample['joy'].to(config.device).unsqueeze(1)
+            fright = sample['fright'].to(config.device).unsqueeze(1)
+            anger = sample['anger'].to(config.device).unsqueeze(1)
+            fear = sample['fear'].to(config.device).unsqueeze(1)
+            sorrow = sample['sorrow'].to(config.device).unsqueeze(1)
+
+            target = torch.cat((love, joy), 1)
+            target = torch.cat((target, fright), 1)
+            target = torch.cat((target, anger), 1)
+            target = torch.cat((target, fear), 1)
+            target = torch.cat((target, sorrow), 1)
+            # ipdb.set_trace()
+
+            outputs = outputs.reshape(-1, 4)
+            target = target.reshape(-1)
+            loss = criterion(outputs, target)  # [64, 6, 4], [64, 6]
 
             losses.append(loss.item())
 
@@ -79,7 +91,7 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
 
             if global_step % log_steps == 0:
                 print("global step %d, epoch: %d, batch: %d, loss: %.5f, speed: %.2f step/s, lr: %.10f"
-                      % (global_step, epoch, step, np.mean(losses), global_step / (time.time() - tic_train), 
+                      % (global_step, epoch, step, loss, global_step / (time.time() - tic_train), 
                          float(scheduler.get_last_lr()[0])))
 
             writer.add_scalar("Training loss", loss, global_step=global_step)
