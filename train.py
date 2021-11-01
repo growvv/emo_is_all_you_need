@@ -5,7 +5,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.tensorboard import SummaryWriter
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+#os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 import numpy as np
 import time
 import ipdb
@@ -43,7 +43,7 @@ scheduler = get_linear_schedule_with_warmup(
 
 criterion = nn.CrossEntropyLoss()
 
-writer = SummaryWriter("runs/loss_plot")
+writer = SummaryWriter("runs/loss_plot2")
 
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
