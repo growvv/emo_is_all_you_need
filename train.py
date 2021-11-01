@@ -5,6 +5,7 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
+import pandas as pd
 import time
 import ipdb
 
@@ -15,8 +16,8 @@ from predict import predict
 import config
 
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+#import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 
 # roberta
 PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
@@ -96,7 +97,22 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
 
     # 评估
     model.eval()
-    predict(model, valid_loader)
+    test_pred = predict(model, valid_loader)
+    print(test_pred)    
 
+
+    # ipdb.set_trace()
+    submit = pd.read_csv('data/submit_example.tsv', sep='\t')
+
+    label_preds = []
+    for col in config.target_cols:
+        preds = test_pred[col]
+        label_preds.append(preds)
+    print(len(label_preds[0]))
+    sub = submit.copy()
+    sub['emotion'] = np.stack(label_preds, axis=1).tolist()
+    sub['emotion'] = sub['emotion'].apply(lambda x: ','.join([str(i) for i in x]))
+    sub.to_csv('baseline_chinese-roberta-wwm-ext.tsv', sep='\t', index=False)
+    sub.head()
 
 do_train(model, train_loader, criterion, optimizer, scheduler)

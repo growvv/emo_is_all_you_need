@@ -2,12 +2,14 @@ import torch
 from tqdm import tqdm
 from collections import defaultdict
 import config
+import ipdb
 
 def predict(model, test_loader):
     val_loss = 0
     test_pred = defaultdict(list)
     model.eval()
     for step, batch in tqdm(enumerate(test_loader)):
+        # ipdb.set_trace()
         b_input_ids = batch['input_ids'].to(config.device)
         attention_mask = batch["attention_mask"].to(config.device)
         with torch.no_grad():

@@ -1,6 +1,6 @@
 import torch
 
-EPOCH_NUM=3
+EPOCH_NUM=0
 weight_decay=0.005
 data_path='data'
 warmup_proportion=0.0
@@ -18,6 +18,6 @@ target_cols=['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']
 PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
 
 # save model
-model_root = "my_checkpoint2.pth.tar"
-load_model = False
-save_model = True
+model_root = "my_checkpoint.pth.tar"
+load_model = True
+save_model = False
