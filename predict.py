@@ -2,6 +2,10 @@ import torch
 from tqdm import tqdm
 from collections import defaultdict
 import config
+from utils import load_checkpoint
+from transformers import AdamW, get_linear_schedule_with_warmup
+from model import EmotionClassifier
+
 
 def predict(model, test_loader):
     val_loss = 0
@@ -17,3 +21,9 @@ def predict(model, test_loader):
                 test_pred[col].extend(out2.cpu().numpy().tolist())
 
     return test_pred
+
+if __name__ == "__main__":
+    model = EmotionClassifier(n_classes=4, bert=base_model).to(config.device)
+    optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    
+    load_checkpoint(torch.load(config.model_root), model, optimizer)
