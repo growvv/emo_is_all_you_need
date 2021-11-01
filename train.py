@@ -48,7 +48,7 @@ writer = SummaryWriter("runs/loss_plot2")
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 1
+    log_steps = 100
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
@@ -96,18 +96,18 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
 
             writer.add_scalar("Training loss", loss, global_step=global_step)
 
-    # 每一轮epoch
-    # save model
-    if config.save_model:
-        checkpoint = {
-            "state_dict": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-        }
-        save_checkpoint(checkpoint, filename=config.model_root)
+        # 每一轮epoch
+        # save model
+        if config.save_model:
+            checkpoint = {
+                "state_dict": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+            }
+            save_checkpoint(checkpoint, filename=config.model_root)
 
     # 评估
-    model.eval()
-    predict(model, valid_loader)
+    # model.eval()
+    # predict(model, valid_loader)
 
 
 do_train(model, train_loader, criterion, optimizer, scheduler)
