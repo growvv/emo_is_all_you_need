@@ -50,7 +50,7 @@ writer = SummaryWriter("runs/loss_plot")
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 100
+    log_steps = 1
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []

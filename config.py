@@ -18,6 +18,6 @@ target_cols=['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']
 PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
 
 # save model
-model_root = "my_checkpoint2.pth.tar"
-load_model = False
-save_model = True
+model_root = "weights/my_checkpoint_attn.pth.tar"
+load_model = True
+save_model = False
