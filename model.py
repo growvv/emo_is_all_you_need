@@ -10,12 +10,8 @@ class EmotionClassifier(nn.Module):
     def __init__(self, n_classes, bert):
         super(EmotionClassifier, self).__init__()
         self.bert = bert
-        self.out_love = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_joy = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_fright = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_anger = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_fear = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_sorrow = nn.Linear(self.bert.config.hidden_size, n_classes)
+        self.fc = nn.Linear(self.bert.config.hidden_size, n_classes)
+        self.sigmod = nn.Sigmoid()
 
     def forward(self, input_ids, attention_mask):
         _, pooled_output = self.bert(
@@ -23,27 +19,20 @@ class EmotionClassifier(nn.Module):
             attention_mask=attention_mask,
             return_dict = False
         )
-        love = self.out_love(pooled_output)
-        joy = self.out_joy(pooled_output)
-        fright = self.out_fright(pooled_output)
-        anger = self.out_anger(pooled_output)
-        fear = self.out_fear(pooled_output)
-        sorrow = self.out_sorrow(pooled_output)
+        out = self.fc(pooled_output)
+        out = self.sigmod(out)
         
         # ipdb.set_trace()
-        return {
-            'love': love, 'joy': joy, 'fright': fright,
-            'anger': anger, 'fear': fear, 'sorrow': sorrow,
-        }
+        return out
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
     model = EmotionClassifier(n_classes=4, bert=base_model)
 
-    input_ids = torch.randint(1, 10000, (128,1)).squeeze(1).unsqueeze(0)
-    attention_mask = torch.Tensor([1 for i in range(128)]).unsqueeze(0)
+    input_ids = torch.randint(1, 10000, (256,1)).squeeze(1).unsqueeze(0)
+    attention_mask = torch.Tensor([1 for i in range(256)]).unsqueeze(0)
     # ipdb.set_trace()
     print(input_ids.shape)
     print(attention_mask.shape)
     output = model(input_ids, attention_mask)
-    print(output)
+    print(output.shape)

@@ -47,8 +47,13 @@ class RoleDataset(Dataset):
             'attention_mask': encoding['attention_mask'].flatten() # [max_length]
         }
 
+        # ipdb.set_trace()
+        labels = []
         for label_col in config.target_cols:
-            sample[label_col] = torch.tensor(label[label_col], dtype=torch.int64)
+            labels.append(label[label_col])
+        
+        sample['labels'] = torch.tensor(labels, dtype=torch.float)
+        # sample['labels'] = labels
         return sample
 
     def __len__(self):

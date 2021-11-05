@@ -11,7 +11,7 @@ import ipdb
 from roledataset import RoleDataset, create_dataloader
 from model import EmotionClassifier
 from utils import load_checkpoint, save_checkpoint
-from predict import predict
+from predict import predict, validate
 import config
 
 
@@ -25,14 +25,20 @@ base_model = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME)  # 加载预训�
 # model = ppnlp.transformers.BertForSequenceClassification.from_pretrained(MODEL_NAME, num_classes=2)
 
 trainset = RoleDataset(tokenizer, config.max_len, mode='train')
-train_loader = create_dataloader(trainset, config.batch_size, mode='train')
-valset = RoleDataset(tokenizer, config.max_len, mode='test')
-valid_loader = create_dataloader(valset, config.batch_size, mode='test')
+train_size = int(len(trainset) * 0.8)
+validate_size = len(trainset) - train_size
+# train_loader = create_dataloader(trainset, config.batch_size, mode='train')
+train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
+train_loader = create_dataloader(train_dataset, config.batch_size, mode='train')
+validate_loader = create_dataloader(validate_dataset, config.batch_size, mode='train')
 
-model = EmotionClassifier(n_classes=4, bert=base_model).to(config.device)
+testset = RoleDataset(tokenizer, config.max_len, mode='test')
+test_loader = create_dataloader(testset, config.batch_size, mode='test')
+
+model = EmotionClassifier(n_classes=6, bert=base_model).to(config.device)
 optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
 if config.load_model:
-    load_checkpoint(torch.load(config.model_root), model, optimizer)
+    load_checkpoint(torch.load(config.model_root, map_location=torch.device('cpu')), model, optimizer)
 
 total_steps = len(train_loader) * config.EPOCH_NUM
 
@@ -42,9 +48,9 @@ scheduler = get_linear_schedule_with_warmup(
   num_training_steps = total_steps
 )
 
-criterion = nn.CrossEntropyLoss()
+criterion = nn.MSELoss()
 
-writer = SummaryWriter("runs/loss_plot")
+writer = SummaryWriter("runs/loss_plot3")
 
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
@@ -54,19 +60,15 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     for epoch in range(config.EPOCH_NUM):
         losses = []
         for step, sample in enumerate(train_loader):
+            if step == 3:
+                break
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
 
             optimizer.zero_grad()
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
 
-            loss_love = criterion(outputs['love'], sample['love'].to(config.device))
-            loss_joy = criterion(outputs['joy'], sample['joy'].to(config.device))
-            loss_fright = criterion(outputs['fright'], sample['fright'].to(config.device))
-            loss_anger = criterion(outputs['anger'], sample['anger'].to(config.device))
-            loss_fear = criterion(outputs['fear'], sample['fear'].to(config.device))
-            loss_sorrow = criterion(outputs['sorrow'], sample['sorrow'].to(config.device))
-            loss = loss_love + loss_joy + loss_fright + loss_anger + loss_fear + loss_sorrow
+            loss = criterion(outputs, sample["labels"].to(config.device))
 
             losses.append(loss.item())
 
@@ -80,23 +82,27 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
 
             if global_step % log_steps == 0:
                 print("global step %d, epoch: %d, batch: %d, loss: %.5f, speed: %.2f step/s, lr: %.10f"
-                      % (global_step, epoch, step, np.mean(losses), global_step / (time.time() - tic_train), 
+                      % (global_step, epoch, step, loss, global_step / (time.time() - tic_train), 
                          float(scheduler.get_last_lr()[0])))
 
             writer.add_scalar("Training loss", loss, global_step=global_step)
 
-    # 每一轮epoch
-    # save model
-    if config.save_model:
-        checkpoint = {
-            "state_dict": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-        }
-        save_checkpoint(checkpoint, filename=config.model_root)
+        # 每一轮epoch
+        # save model
+        if config.save_model:
+            checkpoint = {
+                "state_dict": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+            }
+            save_checkpoint(checkpoint, filename=config.model_root)
 
-    # 评估
+        # 验证
+        model.eval()
+        validate_pred = validate(model, validate_loader)
+
+    # 测试
     model.eval()
-    predict(model, valid_loader)
+    test_pred = predict(model, test_loader)
 
 
 do_train(model, train_loader, criterion, optimizer, scheduler)
