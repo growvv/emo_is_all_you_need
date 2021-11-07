@@ -4,7 +4,7 @@ EPOCH_NUM=5
 weight_decay=0.005
 data_path='data'
 warmup_proportion=0.0
-batch_size=8
+batch_size=32
 lr = 2e-5
 max_len = 128
 
