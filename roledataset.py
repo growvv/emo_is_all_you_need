@@ -48,7 +48,7 @@ class RoleDataset(Dataset):
         }
 
         for label_col in config.target_cols:
-            sample[label_col] = torch.tensor(label[label_col], dtype=torch.int64)
+            sample[label_col] = torch.tensor(label[label_col], dtype=torch.float)
         return sample
 
     def __len__(self):
