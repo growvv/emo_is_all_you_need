@@ -15,15 +15,12 @@ def validate(model, validate_loader):
     test_pred = defaultdict(list)
     model.eval()
     for step, batch in tqdm(enumerate(validate_loader)):
-        if step == 5:
-            break
         b_input_ids = batch['input_ids'].to(config.device)
         attention_mask = batch["attention_mask"].to(config.device)
         # target = batch
         with torch.no_grad():
             logists = model(input_ids=b_input_ids, attention_mask=attention_mask)
-            val_loss += rmseloss(logists, batch['labels'])
-            print(val_loss)
+            val_loss += rmseloss(logists, batch['labels'].to(config.device))
 
     return val_loss / len(validate_loader)
 
@@ -32,8 +29,6 @@ def predict(model, test_loader):
     model.eval()
     label_preds = None
     for step, batch in tqdm(enumerate(test_loader)):
-        if step == 5:
-            break
         b_input_ids = batch['input_ids'].to(config.device)
         attention_mask = batch["attention_mask"].to(config.device)
         with torch.no_grad():
@@ -45,11 +40,9 @@ def predict(model, test_loader):
 
     # ipdb.set_trace()
     sub = pd.read_csv('data/submit_example.tsv', sep='\t')
-    sub.head(5)
-    sub = sub[:40]
 
     print(len(sub['emotion']))
     sub['emotion'] = label_preds.tolist()
     sub['emotion'] = sub['emotion'].apply(lambda x: ','.join([str(i) for i in x]))
-    sub.to_csv('baseline_chinese-roberta-wwm-ext_test.tsv', sep='\t', index=False)
-    sub.head(5)
+    sub.to_csv(config.res_tsv, sep='\t', index=False)
+    print(sub.head(5))

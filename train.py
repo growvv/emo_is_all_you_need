@@ -1,3 +1,6 @@
+#import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+
 import torch
 import torch.nn as nn
 from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertModel
@@ -6,26 +9,29 @@ from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
 import time
+import math
 import ipdb
 
 from roledataset import RoleDataset, create_dataloader
 from model import EmotionClassifier
-from utils import load_checkpoint, save_checkpoint
+from utils import load_checkpoint, save_checkpoint, seed_everything
 from predict import predict, validate
 import config
 
-
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+#import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+seed_everything(seed=19260817)
 
 # roberta
-PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
-tokenizer = BertTokenizer.from_pretrained(PRE_TRAINED_MODEL_NAME)
-base_model = BertModel.from_pretrained(PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
+#PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
+#PRE_TRAINED_MODEL_NAME = 'nghuyong/ernie-1.0'
+#PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/hfl_chinese-roberta-wwm-ext-large'
+tokenizer = BertTokenizer.from_pretrained(config.PRE_TRAINED_MODEL_NAME)
+base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
 # model = ppnlp.transformers.BertForSequenceClassification.from_pretrained(MODEL_NAME, num_classes=2)
 
 trainset = RoleDataset(tokenizer, config.max_len, mode='train')
-train_size = int(len(trainset) * 0.8)
+train_size = int(len(trainset) * 0.95)
 validate_size = len(trainset) - train_size
 # train_loader = create_dataloader(trainset, config.batch_size, mode='train')
 train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
@@ -50,18 +56,16 @@ scheduler = get_linear_schedule_with_warmup(
 
 criterion = nn.MSELoss()
 
-writer = SummaryWriter("runs/loss_plot3")
+writer = SummaryWriter(config.run_plot)
 
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 1
+    log_steps = 100
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
         for step, sample in enumerate(train_loader):
-            if step == 3:
-                break
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
 
@@ -99,6 +103,8 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
         # 验证
         model.eval()
         validate_pred = validate(model, validate_loader)
+        print("score: %f" % (validate_pred))
+        print("score: %f" % (1/(1+math.sqrt(validate_pred))))
 
     # 测试
     model.eval()

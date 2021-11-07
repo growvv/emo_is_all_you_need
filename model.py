@@ -23,7 +23,7 @@ class EmotionClassifier(nn.Module):
         out = self.sigmod(out)
         
         # ipdb.set_trace()
-        return out
+        return out*3
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型

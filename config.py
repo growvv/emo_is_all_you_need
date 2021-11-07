@@ -1,6 +1,6 @@
 import torch
 
-EPOCH_NUM=0
+EPOCH_NUM=5
 weight_decay=0.005
 data_path='data'
 warmup_proportion=0.0
@@ -15,9 +15,17 @@ target_cols=['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']
 
 # model
 # roberta
-PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
+#PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
+#PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
+#PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/nghuyong_ernie-1.0'
+PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/hfl_chinese-roberta-wwm-ext-large'
+
+
+# result
+res_tsv = "huigui_roberta_0.5.tsv"
+run_plot = "runs/loss_plot_huigui_roberta_0.5"
 
 # save model
-model_root = "weights/my_checkpoint.pth.tar"
+model_root = "weights/my_checkpoint_huigui8.pth.tar"
 load_model = False
 save_model = False
