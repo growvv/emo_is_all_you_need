@@ -15,10 +15,10 @@ target_cols=['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']
 
 # model
 # roberta
-#PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
+PRE_TRAINED_MODEL_NAME='models/chinese-roberta-wwm-ext'
 #PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
 #PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/nghuyong_ernie-1.0'
-PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/hfl_chinese-roberta-wwm-ext-large'
+# PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/hfl_chinese-roberta-wwm-ext-large'
 
 
 # result
