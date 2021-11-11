@@ -6,6 +6,10 @@ from torch_geometric.data import Data
 from get_role import get_role
 import re
 
+import networkx as nx   
+import matplotlib.pyplot as plt
+from torch_geometric.utils.convert import to_networkx
+
 import ipdb
 
 def create_graph(text, character, embeddings):
@@ -38,6 +42,25 @@ def create_graph(text, character, embeddings):
     return data
 
 
+def draw_graph(edge_index, name=None):
+    G = nx.Graph(node_size=15, font_size=8)
+    src = edge_index[0].cpu().numpy()
+    dst = edge_index[1].cpu().numpy()
+    edgelist = zip(src, dst)
+    for i, j in edgelist:
+        G.add_edge(i, j)
+    plt.figure(figsize=(8, 8)) # 设置画布的大小
+    nx.draw_networkx(G)
+    plt.show()
+    # plt.savefig('{}.png'.format(name if name else 'path'))
+
+
+def draw_graph_2(Data):
+    G = to_networkx(Data)
+    nx.draw(G)
+    plt.savefig("path.png")
+    plt.show()
+
 class GAT(torch.nn.Module):
     def __init__(self, in_channels, out_channels):
         super(GAT, self).__init__()
@@ -54,12 +77,14 @@ class GAT(torch.nn.Module):
         x = F.elu(self.conv1(x, edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = self.conv2(x, edge_index)
-        return F.log_softmax(x, dim=-1)  # log_softmax ??
+        # return F.log_softmax(x, dim=-1)  # log_softmax ??
+        return x   #  我觉得这个位置还不要softmax
 
 
 # y = torch.tensor([1, 4, 5], dtype=torch.int64)
 # train_mask = torch.tensor([[1, 1, 1]], dtype=torch.bool)
 # data = Data(x=x, edge_index=edge_index, y=y, train_mask=train_mask)
+
 
 
 if __name__ == '__main__':
@@ -70,6 +95,10 @@ if __name__ == '__main__':
                            [1, 0, 2, 1]], dtype=torch.long)
 
     data = Data(x=x, edge_index=edge_index)
+
+    # draw_graph(data.edge_index)
+    draw_graph_2(data)
+    
     print(data)
     pred = model(data.x, data.edge_index)
     print(pred.shape)  # [torch.FloatTensor of size (3, 6)]

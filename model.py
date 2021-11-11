@@ -6,7 +6,7 @@ from torch_geometric.nn import pool
 from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertModel
 import config
 import numpy as np
-from gat import GAT, create_graph
+from gat import GAT, create_graph, draw_graph, draw_graph_2
 
 class EmotionClassifier(nn.Module):
     def __init__(self, n_classes, bert):
@@ -26,6 +26,8 @@ class EmotionClassifier(nn.Module):
         
         data = create_graph(text, character, pooled_output)
         print(data)
+        # draw_graph(data.edge_index) # 好用一点
+        # draw_graph_2(data) # 拉跨
 
         pooled_output = self.gat(data.x, data.edge_index)
 
