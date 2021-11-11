@@ -78,7 +78,7 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
         for step, sample in enumerate(train_loader):
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
-            text = sample["texts"]
+            text = sample["text"]
             character = sample["character"]
             id = sample["id"]
             # print(id, text)

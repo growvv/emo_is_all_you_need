@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.utils.tensorboard.summary import text
 from tqdm import tqdm
 from collections import defaultdict
 import config
@@ -15,11 +16,13 @@ def validate(model, validate_loader):
     test_pred = defaultdict(list)
     model.eval()
     for step, batch in tqdm(enumerate(validate_loader)):
-        b_input_ids = batch['input_ids'].to(config.device)
+        input_ids = batch['input_ids'].to(config.device)
         attention_mask = batch["attention_mask"].to(config.device)
+        text = batch['text']
+        character = batch['character']
         # target = batch
         with torch.no_grad():
-            logists = model(input_ids=b_input_ids, attention_mask=attention_mask)
+            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
             val_loss += rmseloss(logists, batch['labels'].to(config.device))
 
     return val_loss / len(validate_loader)
@@ -29,10 +32,12 @@ def predict(model, test_loader):
     model.eval()
     label_preds = None
     for step, batch in tqdm(enumerate(test_loader)):
-        b_input_ids = batch['input_ids'].to(config.device)
+        input_ids = batch['input_ids'].to(config.device)
         attention_mask = batch["attention_mask"].to(config.device)
+        text = batch['text']
+        character = batch['character']
         with torch.no_grad():
-            logists = model(input_ids=b_input_ids, attention_mask=attention_mask)
+            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
             if label_preds is None:
                 label_preds = logists
             else:

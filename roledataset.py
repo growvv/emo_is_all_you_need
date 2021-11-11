@@ -21,7 +21,7 @@ class RoleDataset(Dataset):
             self.data = pd.read_csv('data/train.csv',sep='\t')
         else:
             self.data = pd.read_csv('data/test.csv',sep='\t')
-        self.texts=self.data['text'].tolist()
+        self.text=self.data['text'].tolist()
         self.labels=self.data[config.target_cols].to_dict('records')
         self.tokenizer = tokenizer
         self.max_len = max_len
@@ -29,7 +29,7 @@ class RoleDataset(Dataset):
         self.character = self.data['character'].tolist()
 
     def __getitem__(self, index):
-        text=str(self.texts[index])  # 天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装，完全暴露在大雨之中。角色: o2'
+        text=str(self.text[index])  # 天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装，完全暴露在大雨之中。角色: o2'
         label=self.labels[index]  # {'love': 0, 'joy': 0, 'fright': 0, 'anger': 0, 'fear': 0, 'sorrow': 0}
         id = self.id[index]
         character = self.character[index]
@@ -46,7 +46,7 @@ class RoleDataset(Dataset):
 
         sample = {
             'id': id,
-            'texts': text,
+            'text': text,
             'character': character,
             'input_ids': encoding['input_ids'].flatten(), # [max_length]
             'attention_mask': encoding['attention_mask'].flatten(), # [max_length]
@@ -62,7 +62,7 @@ class RoleDataset(Dataset):
         return sample
 
     def __len__(self):
-        return len(self.texts)
+        return len(self.text)
 
 
 if __name__ == "__main__":
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
 '''
 sampel = {
-        'texts': '天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装，完全暴露在大雨之中。角色: o2', 
+        'text': '天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装，完全暴露在大雨之中。角色: o2', 
         'input_ids': torch.Tensor([  101,  1921,  4958,   678,  4708,  3274,  7433,  8024,   157,  8144,
          3633,  1762,  5314, 10905,  4959,  7433,  6132,  8024,   800,  5632,
          2346,  1316,  1372,  4959,  4708,  1296,  5946,  4638,  1092,  6163,
