@@ -6,10 +6,9 @@ import config
 from transformers import BertTokenizer
 import ipdb
 
-def create_dataloader(dataset, batch_size, mode='train'):
-    shuffle = True if mode == 'train' else False
+def create_dataloader(dataset, batch_size, shuffle=False):
 
-    if mode == 'train':
+    if shuffle:
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     else:
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)

@@ -1,9 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torch import Tensor
-from torch._C import TracingState
 from torch_geometric.nn import GCNConv, GATConv
-from torch_geometric.datasets import Planetoid
 from torch_geometric.data import Data
 
 from get_role import get_role
@@ -28,7 +25,9 @@ def create_graph(text, character, embeddings):
                     if edge_index is None:
                         edge_index = torch.tensor([[i, j]])
                     else:
+                        # 无向图
                         edge_index = torch.cat([edge_index, torch.tensor([[i, j]])], dim=0)
+                        edge_index = torch.cat([edge_index, torch.tensor([[j, i]])], dim=0)
 
                 
 
@@ -55,7 +54,7 @@ class GAT(torch.nn.Module):
         x = F.elu(self.conv1(x, edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = self.conv2(x, edge_index)
-        return F.log_softmax(x, dim=-1)
+        return F.log_softmax(x, dim=-1)  # log_softmax ??
 
 
 # y = torch.tensor([1, 4, 5], dtype=torch.int64)

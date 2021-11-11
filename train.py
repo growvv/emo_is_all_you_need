@@ -18,6 +18,10 @@ from utils import load_checkpoint, save_checkpoint, seed_everything
 from predict import predict, validate
 import config
 
+from fgm import FGM
+
+from torch.utils.data import Subset
+
 #import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 seed_everything(seed=19260817)
@@ -30,16 +34,18 @@ tokenizer = BertTokenizer.from_pretrained(config.PRE_TRAINED_MODEL_NAME)
 base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
 # model = ppnlp.transformers.BertForSequenceClassification.from_pretrained(MODEL_NAME, num_classes=2)
 
-trainset = RoleDataset(tokenizer, config.max_len, mode='train')
-train_size = int(len(trainset) * 0.95)
-validate_size = len(trainset) - train_size
+all_dataset = RoleDataset(tokenizer, config.max_len, mode='train')
+train_size = int(len(all_dataset) * 0.95)
+# validate_size = len(all_dataset) - train_size
 # train_loader = create_dataloader(trainset, config.batch_size, mode='train')
-train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
-train_loader = create_dataloader(train_dataset, config.batch_size, mode='train')
-validate_loader = create_dataloader(validate_dataset, config.batch_size, mode='train')
+train_dataset = torch.utils.data.Subset(all_dataset, range(train_size)) 
+validate_dataset = torch.utils.data.Subset(all_dataset, range(train_size, len(all_dataset)))
+# train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
+train_loader = create_dataloader(train_dataset, config.batch_size, shuffle=False)
+validate_loader = create_dataloader(validate_dataset, config.batch_size, shuffle=False)
 
 testset = RoleDataset(tokenizer, config.max_len, mode='test')
-test_loader = create_dataloader(testset, config.batch_size, mode='test')
+test_loader = create_dataloader(testset, config.batch_size, shuffle=False)
 
 model = EmotionClassifier(n_classes=6, bert=base_model).to(config.device)
 optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
@@ -58,6 +64,9 @@ criterion = nn.MSELoss()
 
 writer = SummaryWriter(config.run_plot)
 
+fgm = FGM(model)
+# print(model)
+
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
@@ -65,13 +74,17 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
+        losses_adv = []
         for step, sample in enumerate(train_loader):
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
             text = sample["texts"]
             character = sample["character"]
+            id = sample["id"]
+            # print(id, text)
             # ipdb.set_trace()
 
+            # 1. 正常训练
             optimizer.zero_grad()
             outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
 
@@ -81,6 +94,15 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
 
             loss.backward()
 
+            # 2. 加入对抗训练
+            fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+            loss_adv = criterion(outputs, sample["labels"].to(config.device))
+            losses_adv.append(loss_adv.item())
+            loss_adv.backward()
+            fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
+
+            # 梯度下降，更新参数
 #             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             scheduler.step()
@@ -88,8 +110,8 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
             global_step += 1
 
             if global_step % log_steps == 0:
-                print("global step %d, epoch: %d, batch: %d, loss: %.5f, speed: %.2f step/s, lr: %.10f"
-                      % (global_step, epoch, step, loss, global_step / (time.time() - tic_train), 
+                print("global step %d, epoch: %d, batch: %d, loss: %.5f, loss_adv: %.5f, speed: %.2f step/s, lr: %.10f"
+                      % (global_step, epoch, step, loss, loss_adv, global_step / (time.time() - tic_train), 
                          float(scheduler.get_last_lr()[0])))
 
             writer.add_scalar("Training loss", loss, global_step=global_step)
