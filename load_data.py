@@ -34,8 +34,8 @@ submit = pd.read_csv('data/submit_example.tsv', sep='\t')
 train = train[train['emotions'] != '']
 
 
-train['text'] = '(对应的角色: ' + train['character'].astype(str) + ')' + train[ 'content'].astype(str)  +'(对应的角色: ' + train['character'].astype(str) + ')'
-test['text'] = '(对应的角色: ' + test['character'].astype(str) + ')' +  test['content'].astype(str) + '(对应的角色: ' + test['character'].astype(str) +  ')'
+train['text'] = train['content'].astype(str) 
+test['text'] =  test['content'].astype(str)
 
 train['emotions'] = train['emotions'].apply(lambda x: [int(_i) for _i in x.split(',')])
 

@@ -27,11 +27,13 @@ class RoleDataset(Dataset):
         self.tokenizer = tokenizer
         self.max_len = max_len
         self.id =self.data['id'].tolist()
+        self.character = self.data['character'].tolist()
 
     def __getitem__(self, index):
         text=str(self.texts[index])  # 天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装，完全暴露在大雨之中。角色: o2'
         label=self.labels[index]  # {'love': 0, 'joy': 0, 'fright': 0, 'anger': 0, 'fear': 0, 'sorrow': 0}
         id = self.id[index]
+        character = self.character[index]
         # ipdb.set_trace()
 
         encoding=self.tokenizer.encode_plus(text,
@@ -46,6 +48,7 @@ class RoleDataset(Dataset):
         sample = {
             'id': id,
             'texts': text,
+            'character': character,
             'input_ids': encoding['input_ids'].flatten(), # [max_length]
             'attention_mask': encoding['attention_mask'].flatten(), # [max_length]
         }

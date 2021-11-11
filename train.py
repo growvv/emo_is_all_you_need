@@ -61,16 +61,19 @@ writer = SummaryWriter(config.run_plot)
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 100
+    log_steps = 1
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
         for step, sample in enumerate(train_loader):
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
+            text = sample["texts"]
+            character = sample["character"]
+            # ipdb.set_trace()
 
             optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
 
             loss = criterion(outputs, sample["labels"].to(config.device))
 
