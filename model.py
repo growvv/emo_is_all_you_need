@@ -6,6 +6,8 @@ from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertMod
 import config
 import numpy as np
 from multi_head_attention import MultihHeadAttention
+from torchsummary import summary
+
 
 class EmotionClassifier(nn.Module):
     def __init__(self, n_classes, bert):
@@ -16,15 +18,19 @@ class EmotionClassifier(nn.Module):
         self.out_fright = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_anger = nn.Linear(self.bert.config.hidden_size, n_classes)
         self.out_fear = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.out_sorrow = nn.Linear(self.bert.config.hidden_size, n_classes)
-        self.self_attention = MultihHeadAttention(4, 1)
+        self.out_sorrow = nn.Linear(self.bert.config.hidden_size, n_classes) #768
+        # self.self_attention = MultihHeadAttention(n_classes, 1)
+        # self.self_attention_2 = MultihHeadAttention(self.bert.config.hidden_size, 8)
 
     def forward(self, input_ids, attention_mask):
-        _, pooled_output = self.bert(
+        # ipdb.set_trace()
+        last_hidden_state, pooled_output = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
-            return_dict = False
+            return_dict = False,
         )
+        ipdb.set_trace()
+        # pooled_output = self.self_attention_2(pooled_output, pooled_output, pooled_output)
         love = self.out_love(pooled_output).unsqueeze(1)
         joy = self.out_joy(pooled_output).unsqueeze(1)
         fright = self.out_fright(pooled_output).unsqueeze(1)
@@ -40,7 +46,7 @@ class EmotionClassifier(nn.Module):
         x = torch.cat((x, sorrow), 1)
 
         # ipdb.set_trace()
-        x = self.self_attention(x, x, x)
+        # x = self.self_attention(x, x, x)
         # ipdb.set_trace()
 
         return x
@@ -54,12 +60,16 @@ class EmotionClassifier(nn.Module):
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
     model = EmotionClassifier(n_classes=4, bert=base_model)
+    # print(model)
 
-    input_ids = torch.randint(1, 10000, (128,1)).squeeze(1).unsqueeze(0)
-    attention_mask = torch.Tensor([1 for i in range(128)]).unsqueeze(0)
+    # input_ids = torch.randint(1, 10000, (8, 128))
+    # attention_mask = torch.ones((8, 128))
+    input_ids = torch.tensor([[3, 4, 5, 3]])
+    attention_mask = torch.tensor([[1, 1, 1, 1]])
     # ipdb.set_trace()
     print(input_ids.shape)
     print(attention_mask.shape)
     output = model(input_ids, attention_mask)
     # print(output)
-    print(output.shape)
+    # print(output.shape)
+    # summary(model, input_ids, attention_mask)

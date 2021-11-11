@@ -31,6 +31,7 @@ def validate(model, validate_loader):
                     target = torch.cat((target, batch[col].unsqueeze(1).to(config.device)), dim=1)
             out = torch.argmax(logists, axis=2)
             val_loss = rmseloss(out, target)
+        print(val_loss/(step*config.batch_size))
 
     return val_loss / len(validate_loader)
 

@@ -1,8 +1,10 @@
+from re import M
 import torch
 import torch.nn as nn
 from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertModel
 from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import DataLoader
 import math
 
 #import os
@@ -15,7 +17,9 @@ from roledataset import RoleDataset, create_dataloader
 from model import EmotionClassifier
 from utils import load_checkpoint, save_checkpoint
 from predict import predict, validate
+from adv_train import FGM, grad_test
 import config
+from classiloss import ClassiLoss
 
 
 # roberta
@@ -31,13 +35,15 @@ validate_size = len(trainset) - train_size
 
 train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
 train_loader = create_dataloader(train_dataset, config.batch_size, mode='train')
-validate_loader = create_dataloader(validate_dataset, config.batch_size, mode='train')
+validate_loader = DataLoader(validate_dataset, config.batch_size, shuffle=False)
 
 #train_loader = create_dataloader(trainset, config.batch_size, mode='train')
-testset = RoleDataset(tokenizer, config.max_len, mode='test')
-test_loader = create_dataloader(testset, config.batch_size, mode='test')
+test_dataset = RoleDataset(tokenizer, config.max_len, mode='test')
+test_loader = DataLoader(test_dataset, config.batch_size, shuffle=False)
 
-model = EmotionClassifier(n_classes=4, bert=base_model).to(config.device)
+model = EmotionClassifier(n_classes=1, bert=base_model).to(config.device)
+# print(model)
+# ipdb.set_trace()
 optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
 if config.load_model:
     load_checkpoint(torch.load(config.model_root), model, optimizer)
@@ -50,9 +56,11 @@ scheduler = get_linear_schedule_with_warmup(
   num_training_steps = total_steps
 )
 
-criterion = nn.MSELoss()
+criterion = ClassiLoss()
 
 writer = SummaryWriter(config.run_plot)
+
+fgm = FGM(model)
 
 def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     model.train()
@@ -65,12 +73,8 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
             if step == 3:
                 break
             input_ids = sample["input_ids"].to(config.device)
+            # print(tokenizer.decode(input_ids[0]))
             attention_mask = sample["attention_mask"].to(config.device)
-
-            optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask) 
-            # outputs: [64, 6]
-            # target = torch.empty(64, 0)
 
             target = None
             #ipdb.set_trace()
@@ -79,18 +83,34 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
                     target = sample[col].unsqueeze(1).to(config.device)
                 else:
                     target = torch.cat((target, sample[col].unsqueeze(1).to(config.device)), dim=1)
-         
-            #ipdb.set_trace() 
-            outputs = torch.argmax(outputs, axis=2) # [64, 6, 4] ->  [64, 6]
-            loss = criterion(outputs, target).requires_grad_(True)
 
+            
+            # 1. 正常训练
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)             
+         
+            # ipdb.set_trace() 
+            # outputs = torch.argmax(outputs, axis=2) # [64, 6, 4] ->  [64, 6]
+            loss = criterion(outputs, target) # outputs有梯度，target没有梯度，loss有梯度
+            # print(loss)
+            # ipdb.set_trace()
             losses.append(loss.item())
 
-            loss.backward()
+            loss.backward()  # 反向传播，得到正常的grad
+            grad_test(model)  # 查看是否有梯度
+
+            # 2. 对抗训练
+            fgm.attack(epsilon=0.3, emb_name='word_embeddings')
+            outputs_adv = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss_adv = criterion(outputs_adv, target)
+            loss_adv.backward()
+            fgm.restore(emb_name='word_embeddings')
 
 #             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
             scheduler.step()
+
+            optimizer.zero_grad()
+            
 
             global_step += 1
 
