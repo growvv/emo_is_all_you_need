@@ -95,12 +95,13 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
             loss.backward()
 
             # 2. 加入对抗训练
-            fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
-            loss_adv = criterion(outputs, sample["labels"].to(config.device))
-            losses_adv.append(loss_adv.item())
-            loss_adv.backward()
-            fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
+            if config.adv_train:
+                fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
+                outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+                loss_adv = criterion(outputs, sample["labels"].to(config.device))
+                losses_adv.append(loss_adv.item())
+                loss_adv.backward()
+                fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
 
             # 梯度下降，更新参数
 #             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)

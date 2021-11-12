@@ -29,3 +29,5 @@ run_plot = "runs/loss_plot_huigui_roberta_0.5"
 model_root = "weights/my_checkpoint_huigui8.pth.tar"
 load_model = False
 save_model = False
+
+adv_train = False

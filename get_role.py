@@ -21,7 +21,9 @@ if __name__ == '__main__':
     roles = get_role()
     str = '天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装。'
     print(roles)
+    print(len(roles))
 
     exist_roles = [role for role in roles if re.search(role, str)]
 
     print(exist_roles)
+    print(len(exist_roles))

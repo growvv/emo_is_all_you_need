@@ -32,10 +32,13 @@ def create_graph(text, character, embeddings):
                         # 无向图
                         edge_index = torch.cat([edge_index, torch.tensor([[i, j]])], dim=0)
                         edge_index = torch.cat([edge_index, torch.tensor([[j, i]])], dim=0)
+            # else:  # 自回路 考虑吗？
+            #     if edge_index is None:
+            #         edge_index = torch.tensor([[i, i]])
+            #     else:
+            #         edge_index = torch.cat([edge_index, torch.tensor([[i, i]])], dim=0)
 
-                
-
-    x = embeddings
+    
     edge_index = edge_index.t().contiguous()
     data = Data(x=x, edge_index=edge_index)
 
@@ -73,10 +76,14 @@ class GAT(torch.nn.Module):
                              dropout=0.6)
 
     def forward(self, x, edge_index):
+        ipdb.set_trace()
+        x_copy = x.clone()
         x = F.dropout(x, p=0.6, training=self.training)
         x = F.elu(self.conv1(x, edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = self.conv2(x, edge_index)
+        return x + x_copy  # Residual connection, 避免孤立节点变成全0
+        
         # return F.log_softmax(x, dim=-1)  # log_softmax ??
         return x   #  我觉得这个位置还不要softmax
 

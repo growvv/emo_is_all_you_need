@@ -29,7 +29,8 @@ class EmotionClassifier(nn.Module):
         # draw_graph(data.edge_index) # 好用一点
         # draw_graph_2(data) # 拉跨
 
-        pooled_output = self.gat(data.x, data.edge_index)
+        # ipdb.set_trace()
+        pooled_output = self.gat(data.x, data.edge_index)  # pooled_output[31] 全0为啥
 
         out = self.fc(pooled_output)
         out = self.sigmod(out)
