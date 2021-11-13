@@ -41,7 +41,7 @@ train_size = int(len(all_dataset) * 0.95)
 train_dataset = torch.utils.data.Subset(all_dataset, range(train_size)) 
 validate_dataset = torch.utils.data.Subset(all_dataset, range(train_size, len(all_dataset)))
 # train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
-train_loader = create_dataloader(train_dataset, config.batch_size, shuffle=False)
+# train_loader = create_dataloader(train_dataset, config.batch_size, shuffle=False)
 validate_loader = create_dataloader(validate_dataset, config.batch_size, shuffle=False)
 
 testset = RoleDataset(tokenizer, config.max_len, mode='test')
@@ -52,7 +52,7 @@ optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_d
 if config.load_model:
     load_checkpoint(torch.load(config.model_root, map_location=torch.device('cpu')), model, optimizer)
 
-total_steps = len(train_loader) * config.EPOCH_NUM
+total_steps = len(train_dataset) * config.EPOCH_NUM
 
 scheduler = get_linear_schedule_with_warmup(
   optimizer,
@@ -66,8 +66,8 @@ writer = SummaryWriter(config.run_plot)
 
 fgm = FGM(model)
 # print(model)
-
-def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
+# ipdb.set_trace()
+def do_train(model, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
     log_steps = 1
@@ -75,47 +75,59 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     for epoch in range(config.EPOCH_NUM):
         losses = []
         losses_adv = []
-        for step, sample in enumerate(train_loader):
-            input_ids = sample["input_ids"].to(config.device)
-            attention_mask = sample["attention_mask"].to(config.device)
-            text = sample["text"]
-            character = sample["character"]
-            id = sample["id"]
-            # print(id, text)
+        for index in range(len(train_dataset)):
             # ipdb.set_trace()
+            start = max(0, index-config.batch_size//2)
+            end = min(len(train_dataset), index+config.batch_size//2)+1
+            # batch_data = train_dataset[start:end]
+            batch_data = Subset(train_dataset, range(start, end))
+            offset = index - start
+            train_loader = create_dataloader(batch_data, config.batch_size, shuffle=False)
+    
+            for step, sample in enumerate(train_loader):
+                input_ids = sample["input_ids"].to(config.device)
+                attention_mask = sample["attention_mask"].to(config.device)
+                text = sample["text"]
+                character = sample["character"]
+                id = sample["id"]
+                pos = sample["pos"]
+                # print(id, text)
+                # ipdb.set_trace()
 
-            # 1. 正常训练
-            optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+                # 1. 正常训练
+                optimizer.zero_grad()
+                outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos, offset=offset)
 
-            loss = criterion(outputs, sample["labels"].to(config.device))
+                # ipdb.set_trace()
+                loss = criterion(outputs, sample["labels"][offset].to(config.device))
 
-            losses.append(loss.item())
+                losses.append(loss.item())
 
-            loss.backward()
+                loss.backward()
 
-            # 2. 加入对抗训练
-            if config.adv_train:
-                fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
-                loss_adv = criterion(outputs, sample["labels"].to(config.device))
-                losses_adv.append(loss_adv.item())
-                loss_adv.backward()
-                fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
+                # 2. 加入对抗训练
+                loss_adv = 0
+                if config.adv_train:
+                    fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
+                    outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+                    loss_adv = criterion(outputs, sample["labels"][offset].to(config.device))
+                    losses_adv.append(loss_adv.item())
+                    loss_adv.backward()
+                    fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
 
-            # 梯度下降，更新参数
-#             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-            optimizer.step()
-            scheduler.step()
+                # 梯度下降，更新参数
+    #             nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                optimizer.step()
+                scheduler.step()
 
-            global_step += 1
+                global_step += 1
 
-            if global_step % log_steps == 0:
-                print("global step %d, epoch: %d, batch: %d, loss: %.5f, loss_adv: %.5f, speed: %.2f step/s, lr: %.10f"
-                      % (global_step, epoch, step, loss, loss_adv, global_step / (time.time() - tic_train), 
-                         float(scheduler.get_last_lr()[0])))
+                if global_step % log_steps == 0:
+                    print("global step %d, epoch: %d, batch: %d, loss: %.5f, loss_adv: %.5f, speed: %.2f step/s, lr: %.10f"
+                        % (global_step, epoch, step, loss, loss_adv, global_step / (time.time() - tic_train), 
+                            float(scheduler.get_last_lr()[0])))
 
-            writer.add_scalar("Training loss", loss, global_step=global_step)
+                writer.add_scalar("Training loss", loss, global_step=global_step)
 
         # 每一轮epoch
         # save model
@@ -137,4 +149,4 @@ def do_train(model, date_loader, criterion, optimizer, scheduler, metric=None):
     test_pred = predict(model, test_loader)
 
 
-do_train(model, train_loader, criterion, optimizer, scheduler)
+do_train(model, criterion, optimizer, scheduler)

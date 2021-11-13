@@ -1,3 +1,4 @@
+from math import log
 import ipdb
 import torch
 import torch.nn as nn
@@ -13,16 +14,17 @@ class EmotionClassifier(nn.Module):
         super(EmotionClassifier, self).__init__()
         self.bert = bert
         self.gat = GAT(self.bert.config.hidden_size, self.bert.config.hidden_size)
-        self.fc = nn.Linear(self.bert.config.hidden_size, n_classes)
+        self.fc = nn.Linear(self.bert.config.hidden_size * 2, n_classes)
         self.sigmod = nn.Sigmoid()
 
-    def forward(self, input_ids, attention_mask, text, character):
+    def forward(self, input_ids, attention_mask, text, character, pos, offset):
         last_hidden_state, pooled_output = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,
             return_dict = False
         )
         # ipdb.set_trace()
+        word_embedding = last_hidden_state[offset, pos[offset], :]  # batch_size 个 单词的embedding
         
         data = create_graph(text, character, pooled_output)
         print(data)
@@ -30,13 +32,13 @@ class EmotionClassifier(nn.Module):
         # draw_graph_2(data) # 拉跨
 
         # ipdb.set_trace()
-        pooled_output = self.gat(data.x, data.edge_index)  # pooled_output[31] 全0为啥
+        pooled_output = self.gat(data.x, data.edge_index)[offset]  # 只取当前关注句子的embedding 
 
-        out = self.fc(pooled_output)
-        out = self.sigmod(out)
+        word_sentence_embedding = torch.cat([word_embedding, pooled_output], dim=0)
+        logits = self.fc(word_sentence_embedding)
+        logits = self.sigmod(logits)
         
-        
-        return out*3
+        return logits*3
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型

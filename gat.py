@@ -76,7 +76,7 @@ class GAT(torch.nn.Module):
                              dropout=0.6)
 
     def forward(self, x, edge_index):
-        ipdb.set_trace()
+        # ipdb.set_trace()
         x_copy = x.clone()
         x = F.dropout(x, p=0.6, training=self.training)
         x = F.elu(self.conv1(x, edge_index))

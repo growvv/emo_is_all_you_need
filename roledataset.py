@@ -33,10 +33,9 @@ class RoleDataset(Dataset):
         label=self.labels[index]  # {'love': 0, 'joy': 0, 'fright': 0, 'anger': 0, 'fear': 0, 'sorrow': 0}
         id = self.id[index]
         character = self.character[index]
-        # ipdb.set_trace()
 
         encoding=self.tokenizer.encode_plus(text,
-                                            add_special_tokens=True,
+                                            add_special_tokens=True, # Add '[CLS]' and '[SEP]'
                                             truncation=True,
                                             padding = 'max_length',
                                             max_length=self.max_len,
@@ -44,10 +43,18 @@ class RoleDataset(Dataset):
                                             return_attention_mask=True,
                                             return_tensors='pt',)
 
+
+        # ipdb.set_trace()
+        tokens = self.tokenizer.decode(encoding['input_ids'].flatten()).split(' ')
+        pos = tokens.index(character)
+        # print(tokens)
+        assert tokens[pos] == character
+        assert pos < self.max_len and pos >= 0
         sample = {
             'id': id,
             'text': text,
             'character': character,
+            'pos': pos,
             'input_ids': encoding['input_ids'].flatten(), # [max_length]
             'attention_mask': encoding['attention_mask'].flatten(), # [max_length]
         }
@@ -71,11 +78,12 @@ if __name__ == "__main__":
     print("loading finish!")
 
     trainset = RoleDataset(tokenizer, config.max_len, mode='train')
-    train_loader = create_dataloader(trainset, config.batch_size, mode='train')
+    train_loader = create_dataloader(trainset, config.batch_size)
     
     # ipdb.set_trace()
     print(trainset.__len__())  # 36612
-    print(trainset.__getitem__(0))
+    print(len(train_loader))  # 36612/32=1250 ?
+    print(trainset.__getitem__(0)) 
 
 
 '''
