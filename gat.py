@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, GATConv
 from torch_geometric.data import Data
+import config
 
 from get_role import get_role
 import re
@@ -22,6 +23,7 @@ def create_graph(text, character, embeddings):
     for i in range(num_nodes):
         for j in range(num_nodes):
             if i != j:
+                # ipdb.set_trace()
                 exist_roles1 = [role for role in roles if re.search(role, text[i])]
                 exist_roles2 = [role for role in roles if re.search(role, text[j])]
                 if set(exist_roles1).intersection(set(exist_roles2)):  # 交集不为空
@@ -40,7 +42,7 @@ def create_graph(text, character, embeddings):
 
     
     edge_index = edge_index.t().contiguous()
-    data = Data(x=x, edge_index=edge_index)
+    data = Data(x=x, edge_index=edge_index.to(config.device))
 
     return data
 

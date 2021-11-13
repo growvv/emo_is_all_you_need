@@ -10,11 +10,11 @@ def get_role():
         # ipdb.set_trace()
         data = pd.DataFrame(lines)
 
-        role = data[2].to_list()
+        roles = data[2].to_list()[:-1]  # 去掉最后一个空行，为啥会这样??
 
-        role = list(set(role))
+        roles = list(set(roles))
 
-        return role
+        return roles
 
 
 if __name__ == '__main__':

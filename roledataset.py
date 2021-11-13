@@ -46,7 +46,13 @@ class RoleDataset(Dataset):
 
         # ipdb.set_trace()
         tokens = self.tokenizer.decode(encoding['input_ids'].flatten()).split(' ')
-        pos = tokens.index(character)
+        pos = None
+        try:
+            pos = tokens.index(character)
+        except:
+            print(text)
+            ipdb.set_trace()        
+
         # print(tokens)
         assert tokens[pos] == character
         assert pos < self.max_len and pos >= 0

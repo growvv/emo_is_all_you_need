@@ -3,6 +3,8 @@ import pandas as pd
 import ipdb
 import numpy as np
 from utils import seed_everything
+from cleardata import clear_data
+
 
 seed_everything(19260817)
 
@@ -33,17 +35,19 @@ test = pd.read_csv('data/test_dataset.tsv', sep='\t')
 submit = pd.read_csv('data/submit_example.tsv', sep='\t')
 train = train[train['emotions'] != '']
 
-
-train['text'] = train['content'].astype(str) 
-test['text'] =  test['content'].astype(str)
+#ipdb.set_trace()
+train['text'] = [clear_data(text) for text in train['content'].astype(str)]
+test['text'] = [clear_data(text) for text in test['content'].astype(str)]
+#train['text'] = clear_data(train['content'].astype(str)) 
+#test['text'] =  clear_data(test['content'].astype(str))
 
 train['emotions'] = train['emotions'].apply(lambda x: [int(_i) for _i in x.split(',')])
 
 train[['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']] = train['emotions'].values.tolist()
 test[['love', 'joy', 'fright', 'anger', 'fear', 'sorrow']] =[0,0,0,0,0,0]
 
-print(train.text.head())
-print(test.text.head())
+print(train.text.head(5))
+print(test.text.head(5))
 
 train.to_csv('data/train.csv',columns=['id', 'content', 'character','text','love', 'joy', 'fright', 'anger', 'fear', 'sorrow'],
             sep='\t',

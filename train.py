@@ -70,19 +70,19 @@ fgm = FGM(model)
 def do_train(model, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 1
+    log_steps = 100
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
         losses_adv = []
         for index in range(len(train_dataset)):
-            # ipdb.set_trace()
             start = max(0, index-config.batch_size//2)
             end = min(len(train_dataset), index+config.batch_size//2)+1
             # batch_data = train_dataset[start:end]
             batch_data = Subset(train_dataset, range(start, end))
+            batch_size = end - start
             offset = index - start
-            train_loader = create_dataloader(batch_data, config.batch_size, shuffle=False)
+            train_loader = create_dataloader(batch_data, batch_size, shuffle=False)
     
             for step, sample in enumerate(train_loader):
                 input_ids = sample["input_ids"].to(config.device)

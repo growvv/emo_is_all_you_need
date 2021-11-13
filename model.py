@@ -24,10 +24,11 @@ class EmotionClassifier(nn.Module):
             return_dict = False
         )
         # ipdb.set_trace()
+        # print(len(pos), offset)
         word_embedding = last_hidden_state[offset, pos[offset], :]  # batch_size 个 单词的embedding
         
         data = create_graph(text, character, pooled_output)
-        print(data)
+        # print(data)
         # draw_graph(data.edge_index) # 好用一点
         # draw_graph_2(data) # 拉跨
 
