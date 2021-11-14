@@ -23,7 +23,9 @@ with open('data/train_dataset_v2.tsv', 'r', encoding='utf-8') as handler:
         if emos[0] == 0 and emos[1] == 0 and emos[2] == 0 and emos[3] == 0 and emos[4] == 0 and emos[5] == 0:
             if np.random.rand(1)[0] < 0.0:
                 continue                                 
-        
+        if len(sp[1]) > 125:
+            continue       
+ 
         data.append(sp)
 
 print(len(data))

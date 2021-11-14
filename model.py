@@ -25,17 +25,26 @@ class EmotionClassifier(nn.Module):
         )
         # ipdb.set_trace()
         # print(len(pos), offset)
-        word_embedding = last_hidden_state[offset, pos[offset], :]  # batch_size 个 单词的embedding
-        
+        # word_embedding = last_hidden_state[offset, pos[offset], :]  # 第offset  单词的embeddings 中的 第pos个embedding
+        word_embedding = None  # batch_size 个 单词的embedding        
+        for i in range(len(pos)):
+            if word_embedding == None:
+                word_embedding = last_hidden_state[i, pos[i], :].unsqueeze(0)
+            else:
+                word_embedding = torch.cat((word_embedding, last_hidden_state[i, pos[i], :].unsqueeze(0)), dim=0)
+
+
         data = create_graph(text, character, pooled_output)
         # print(data)
         # draw_graph(data.edge_index) # 好用一点
         # draw_graph_2(data) # 拉跨
 
         # ipdb.set_trace()
-        pooled_output = self.gat(data.x, data.edge_index)[offset]  # 只取当前关注句子的embedding 
-
-        word_sentence_embedding = torch.cat([word_embedding, pooled_output], dim=0)
+        # pooled_output = self.gat(data.x, data.edge_index)[offset]  # 只取当前关注句子的embedding 
+        pooled_output = self.gat(data.x, data.edge_index)  # 还是用batch中的所有句子
+        
+        # ipdb.set_trace()
+        word_sentence_embedding = torch.cat([word_embedding, pooled_output], dim=1)
         logits = self.fc(word_sentence_embedding)
         logits = self.sigmod(logits)
         

@@ -99,7 +99,7 @@ def do_train(model, criterion, optimizer, scheduler, metric=None):
                 outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos, offset=offset)
 
                 # ipdb.set_trace()
-                loss = criterion(outputs, sample["labels"][offset].to(config.device))
+                loss = criterion(outputs, sample["labels"].to(config.device))
 
                 losses.append(loss.item())
 
@@ -110,7 +110,7 @@ def do_train(model, criterion, optimizer, scheduler, metric=None):
                 if config.adv_train:
                     fgm.attack(epsilon=0.3, emb_name="word_embeddings") # 只攻击word embedding
                     outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
-                    loss_adv = criterion(outputs, sample["labels"][offset].to(config.device))
+                    loss_adv = criterion(outputs, sample["labels"].to(config.device))
                     losses_adv.append(loss_adv.item())
                     loss_adv.backward()
                     fgm.restore(emb_name="word_embeddings") # 恢复Embedding的参数
