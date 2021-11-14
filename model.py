@@ -17,7 +17,7 @@ class EmotionClassifier(nn.Module):
         self.fc = nn.Linear(self.bert.config.hidden_size * 2, n_classes)
         self.sigmod = nn.Sigmoid()
 
-    def forward(self, input_ids, attention_mask, text, character, pos, offset):
+    def forward(self, input_ids, attention_mask, text, character, pos):
         last_hidden_state, pooled_output = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask,

@@ -3,10 +3,20 @@ import pandas as pd
 import ipdb
 import numpy as np
 from utils import seed_everything
-from cleardata import clear_data
+#from cleardata import clear_data
+import re
 
 
 seed_everything(19260817)
+
+def myreplace(matched):
+    matched = matched.group()
+    return ' ' +  matched + ' '
+
+def clear_data(str):
+    str = re.sub('[a-z][0-9]', myreplace, str, flags=re.I)
+    return str
+
 
 with open('data/train_dataset_v2.tsv', 'r', encoding='utf-8') as handler:
     lines = handler.read().split('\n')[1:-1]
@@ -26,6 +36,12 @@ with open('data/train_dataset_v2.tsv', 'r', encoding='utf-8') as handler:
         if len(sp[1]) > 125:
             continue       
  
+        if re.search(sp[2], sp[1]) == None:  # 标注出错,角色名并不在句子中
+            print(sp)
+            continue
+
+        clear_data(sp[1])   # 给角色名前后增加空格        
+
         data.append(sp)
 
 print(len(data))
@@ -38,10 +54,10 @@ submit = pd.read_csv('data/submit_example.tsv', sep='\t')
 train = train[train['emotions'] != '']
 
 #ipdb.set_trace()
-train['text'] = [clear_data(text) for text in train['content'].astype(str)]
-test['text'] = [clear_data(text) for text in test['content'].astype(str)]
-#train['text'] = clear_data(train['content'].astype(str)) 
-#test['text'] =  clear_data(test['content'].astype(str))
+#train['text'] = [clear_data(text) for text in train['content'].astype(str)]
+#test['text'] = [clear_data(text) for text in test['content'].astype(str)]
+train['text'] = clear_data(train['content'].astype(str)) 
+test['text'] =  clear_data(test['content'].astype(str))
 
 train['emotions'] = train['emotions'].apply(lambda x: [int(_i) for _i in x.split(',')])
 
