@@ -14,6 +14,7 @@ def create_dataloader(dataset, batch_size, shuffle=False):
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return data_loader
 
+
 class RoleDataset(Dataset):
     def __init__(self, tokenizer, max_len, mode='train'):
         super(RoleDataset, self).__init__()
@@ -21,6 +22,7 @@ class RoleDataset(Dataset):
             self.data = pd.read_csv('data/train.csv',sep='\t')
         else:
             self.data = pd.read_csv('data/test.csv',sep='\t')
+        self.mode=mode
         self.text=self.data['text'].tolist()
         self.labels=self.data[config.target_cols].to_dict('records')
         self.tokenizer = tokenizer
@@ -45,16 +47,19 @@ class RoleDataset(Dataset):
 
 
         # ipdb.set_trace()
-        tokens = self.tokenizer.decode(encoding['input_ids'].flatten()).split(' ')
+        # tokens = self.tokenizer.decode(encoding['input_ids'].flatten()).split(' ')
         pos = None
         try:
-            pos = tokens.index(character)
+            vocab_index = self.tokenizer.convert_tokens_to_ids(character)
+            pos = encoding['input_ids'][0].tolist().index(vocab_index)
+            # pos = tokens.index(character)
         except:
-            print(text)
-            ipdb.set_trace()        
+            print(self.mode, id, text, character)
+            ipdb.set_trace()   
 
         # print(tokens)
-        assert tokens[pos] == character
+        # assert tokens[pos] == character
+        # assert self.tokenizer.convert_ids_to_tokens(encoding['input_ids'][0][pos].item()) == character
         assert pos < self.max_len and pos >= 0
         sample = {
             'id': id,
@@ -84,12 +89,24 @@ if __name__ == "__main__":
     print("loading finish!")
 
     trainset = RoleDataset(tokenizer, config.max_len, mode='train')
-    train_loader = create_dataloader(trainset, config.batch_size)
+    train_loader = create_dataloader(trainset, batch_size=1)
+
+    for step, batch in enumerate(train_loader):
+        #print(step, batch['text'])
+        pass
+
+    testset = RoleDataset(tokenizer, config.max_len, mode='test')
+    test_loader = create_dataloader(testset, batch_size=1)
+
+    for step, batch in enumerate(test_loader):
+        pass
+        #print(step, batch['text'])
+
     
     # ipdb.set_trace()
-    print(trainset.__len__())  # 36612
-    print(len(train_loader))  # 36612/32=1250 ?
-    print(trainset.__getitem__(0)) 
+    print(testset.__len__())  # 36612
+    print(len(test_loader))  # 36612/32=1250 ?
+    print(testset.__getitem__(0)) 
 
 
 '''

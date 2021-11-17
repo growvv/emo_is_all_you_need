@@ -21,14 +21,20 @@ def myreplace_three(matched):
     matched = matched.group()
     return matched[:2] + '和' + matched[2:4] + '和' + matched[4:]
 
+def myreplace(matched):
+    matched = matched.group()
+    return ' ' +  matched + ' '
+
+
 def clear_data(str):
     #if str ==  "":
     #    return str
     #print("hhh: ", str)
-    str = re.sub('[a-z][0-9][a-z][0-9][a-z][0-9]', myreplace_three, str)
-    str = re.sub('[a-z][0-9][a-z][0-9]', myreplace_two, str)
-    str = re.sub('[a-z][a-z][0-9]', myreplace_1, str, flags=re.I)
-    str = re.sub('[a-z][0-9][a-z]', myreplace_2, str, flags=re.I)
+    #str = re.sub('[a-z][0-9][a-z][0-9][a-z][0-9]', myreplace_three, str)
+    #str = re.sub('[a-z][0-9][a-z][0-9]', myreplace_two, str)
+    #str = re.sub('[a-z][a-z][0-9]', myreplace_1, str, flags=re.I)
+    #str = re.sub('[a-z][0-9][a-z]', myreplace_2, str, flags=re.I)
+    str = re.sub('[a-z][0-9]', myreplace, str, flags=re.I)
     return str
 
 

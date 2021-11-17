@@ -20,9 +20,10 @@ def validate(model, validate_loader):
         attention_mask = batch["attention_mask"].to(config.device)
         text = batch['text']
         character = batch['character']
+        pos = batch['pos']
         # target = batch
         with torch.no_grad():
-            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos)
             val_loss += rmseloss(logists, batch['labels'].to(config.device))
 
     return val_loss / len(validate_loader)
@@ -36,8 +37,9 @@ def predict(model, test_loader):
         attention_mask = batch["attention_mask"].to(config.device)
         text = batch['text']
         character = batch['character']
+        pos = batch['pos']
         with torch.no_grad():
-            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character)
+            logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos)
             if label_preds is None:
                 label_preds = logists
             else:
@@ -47,6 +49,7 @@ def predict(model, test_loader):
     sub = pd.read_csv('data/submit_example.tsv', sep='\t')
 
     print(len(sub['emotion']))
+    print(len(label_preds.tolist()))
     sub['emotion'] = label_preds.tolist()
     sub['emotion'] = sub['emotion'].apply(lambda x: ','.join([str(i) for i in x]))
     sub.to_csv(config.res_tsv, sep='\t', index=False)

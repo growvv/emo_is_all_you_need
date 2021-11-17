@@ -6,7 +6,7 @@ roles = get_role()
 print(roles)
 esixt = []
 
-with open('models/chinese-roberta-wwm-ext/vocab.txt', 'r', encoding='utf-8') as f:
+with open('../PreModel/hfl_chinese-roberta-wwm-ext/vocab.txt', 'r', encoding='utf-8') as f:
     lines = f.readlines()
     for line in lines:
         line = line.strip()
