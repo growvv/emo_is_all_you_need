@@ -9,9 +9,9 @@ import ipdb
 def create_dataloader(dataset, batch_size, shuffle=False):
 
     if shuffle:
-        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=4)
     else:
-        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=4)  # 测试集还是别drop_last
     return data_loader
 
 

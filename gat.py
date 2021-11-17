@@ -41,7 +41,14 @@ def create_graph(text, character, embeddings):
             #         edge_index = torch.cat([edge_index, torch.tensor([[i, i]])], dim=0)
 
     
-    edge_index = edge_index.t().contiguous()
+    try:
+        edge_index = edge_index.t().contiguous()  # 考虑没有边的情况
+        #ipdb.set_trace()
+    except:
+        #ipdb.set_trace()
+        print(len(text))
+        print(text)
+        edge_index = torch.tensor([[], []], dtype=torch.long)
     data = Data(x=x, edge_index=edge_index.to(config.device))
 
     return data

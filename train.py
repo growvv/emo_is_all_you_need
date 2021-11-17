@@ -35,7 +35,7 @@ base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载�
 # model = ppnlp.transformers.BertForSequenceClassification.from_pretrained(MODEL_NAME, num_classes=2)
 
 all_dataset = RoleDataset(tokenizer, config.max_len, mode='train')
-#all_dataset = Subset(all_dataset, range(0, config.batch_size*300))  # 用于小规模调试
+#all_dataset = Subset(all_dataset, range(config.batch_size*1000, len(all_dataset)))  # 用于小规模调试
 train_size = int(len(all_dataset) * 0.9)
 validate_size = len(all_dataset) - train_size
 #train_loader = create_dataloader(trainset, config.batch_size, shuffle=False)
