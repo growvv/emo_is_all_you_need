@@ -1,6 +1,6 @@
 import torch
 
-EPOCH_NUM=1
+EPOCH_NUM=5
 weight_decay=0.005
 data_path='data'
 warmup_proportion=0.0
