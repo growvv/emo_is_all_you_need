@@ -10,7 +10,7 @@ class FGM():
         # 例如，self.emb = nn.Embedding(5000, 100)
         for name, param in self.model.named_parameters():
             if param.requires_grad and emb_name in name:
-                print('attack:', name)
+                #print('attack:', name)
                 self.backup[name] = param.data.clone()
                 norm = torch.norm(param.grad) # 默认为2范数
                 if norm != 0:

@@ -9,6 +9,8 @@ import config
 import numpy as np
 from gat import GAT, create_graph, draw_graph, draw_graph_2
 
+criterion = nn.MSELoss()
+
 class EmotionClassifier(nn.Module):
     def __init__(self, n_classes, bert):
         super(EmotionClassifier, self).__init__()
@@ -23,9 +25,7 @@ class EmotionClassifier(nn.Module):
             attention_mask=attention_mask,
             return_dict = False
         )
-        # ipdb.set_trace()
-        # print(len(pos), offset)
-        # word_embedding = last_hidden_state[offset, pos[offset], :]  # 第offset  单词的embeddings 中的 第pos个embedding
+        
         word_embedding = None  # batch_size 个 单词的embedding        
         for i in range(len(pos)):
             if word_embedding == None:
@@ -38,17 +38,15 @@ class EmotionClassifier(nn.Module):
         # print(data)
         # draw_graph(data.edge_index) # 好用一点
         # draw_graph_2(data) # 拉跨
-
-        # ipdb.set_trace()
-        # pooled_output = self.gat(data.x, data.edge_index)[offset]  # 只取当前关注句子的embedding 
+ 
         pooled_output = self.gat(data.x, data.edge_index)  # 还是用batch中的所有句子
         
         # ipdb.set_trace()
         word_sentence_embedding = torch.cat([word_embedding, pooled_output], dim=1)
         logits = self.fc(word_sentence_embedding)
-        logits = self.sigmod(logits)
+        logits = self.sigmod(logits) * 3
         
-        return logits*3
+        return logits
 
 if __name__ == "__main__":
     base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型

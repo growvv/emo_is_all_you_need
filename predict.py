@@ -20,11 +20,12 @@ def validate(model, validate_loader):
         attention_mask = batch["attention_mask"].to(config.device)
         text = batch['text']
         character = batch['character']
-        pos = batch['pos']
+        pos = batch['pos'].to(config.device)
+        labels = batch['labels'].to(config.device)
         # target = batch
         with torch.no_grad():
             logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos)
-            val_loss += rmseloss(logists, batch['labels'].to(config.device))
+            val_loss += rmseloss(logists, labels)
 
     return val_loss / len(validate_loader)
 
@@ -38,6 +39,7 @@ def predict(model, test_loader):
         text = batch['text']
         character = batch['character']
         pos = batch['pos']
+        labels = batch['labels'].to(config.device)
         with torch.no_grad():
             logists = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos)
             if label_preds is None:

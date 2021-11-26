@@ -4,7 +4,6 @@ from torch_geometric.nn import GCNConv, GATConv
 from torch_geometric.data import Data
 import config
 
-from get_role import get_role
 import re
 
 import networkx as nx   
@@ -12,6 +11,8 @@ import matplotlib.pyplot as plt
 from torch_geometric.utils.convert import to_networkx
 
 import ipdb
+
+from get_role import get_role
 
 def create_graph(text, character, embeddings):
 
@@ -78,18 +79,22 @@ class GAT(torch.nn.Module):
         super(GAT, self).__init__()
 
         # num_features: Alias for num_node_features.
-        self.conv1 = GATConv(in_channels, 8, heads=8, dropout=0.6)
-
+        self.conv1 = GATConv(in_channels, 8, heads=8, dropout=0.1)
+        self.conv1_1 = GATConv(8*8, 8, heads=8, dropout=0.1)
         # On the Pubmed dataset, use heads=8 in conv2.
         self.conv2 = GATConv(8 * 8, out_channels, heads=1, concat=False,
-                             dropout=0.6)
+                             dropout=0.2)
 
     def forward(self, x, edge_index):
         # ipdb.set_trace()
         x_copy = x.clone()
-        x = F.dropout(x, p=0.6, training=self.training)
+        x = F.dropout(x, p=0.2, training=self.training)
         x = F.elu(self.conv1(x, edge_index))
-        x = F.dropout(x, p=0.6, training=self.training)
+        
+        x = F.dropout(x, p=0.2, training=self.training)
+        x = F.elu(self.conv1_1(x, edge_index))
+
+        x = F.dropout(x, p=0.2, training=self.training)
         x = self.conv2(x, edge_index)
         return x + x_copy  # Residual connection, 避免孤立节点变成全0
         

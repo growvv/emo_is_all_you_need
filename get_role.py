@@ -2,6 +2,8 @@ import pandas as pd
 import ipdb
 import re
 
+import argparse
+
 def get_role_part(path):
     with open(path, 'r', encoding='utf-8') as f:
         #ipdb.set_trace()
@@ -26,15 +28,17 @@ def get_role():
 
 
 if __name__ == '__main__':
-    roles1 = get_role('data/train_dataset_v2.tsv')
-    roles2 = get_role('data/test_dataset.tsv')
-    print(len(roles1))
-    #print(roles1)
-    print(len(roles2))
-    #print(roles2)
-    roles1.extend(roles2)
-    roles = list(set(roles1))
-    roles = [role for role in roles if role != '']
+    #parser = argparse.ArgumentParser(description='Process dataset path')
+ 
+    #parser.add_argument('--test_dataset', dest="test_path" ,type=str, help='input file path')
+    #parser.add_argument('--train_dataset', dest="train_path" ,type=str, help='input file path')
+
+    #args = parser.parse_args()
+
+    #roles1 = get_role(args.test_path, args.train_path)
+    
+    roles = get_role()
+    roles = list(set(roles))
     print(roles)
 
     str = '天空下着暴雨，o2正在给c1穿雨衣，他自己却只穿着单薄的军装。'

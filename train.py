@@ -6,6 +6,7 @@ import torch.nn as nn
 from transformers import BertPreTrainedModel, BertTokenizer, BertConfig, BertModel
 from transformers import AdamW, get_linear_schedule_with_warmup
 from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import Subset
 
 import numpy as np
 import time
@@ -20,28 +21,19 @@ import config
 
 from fgm import FGM
 
-from torch.utils.data import Subset
-
-#import os
-#os.environ["CUDA_VISIBLE_DEVICES"] = '3'
 seed_everything(seed=19260817)
 
-# roberta
-#PRE_TRAINED_MODEL_NAME='hfl/chinese-roberta-wwm-ext'
-#PRE_TRAINED_MODEL_NAME = 'nghuyong/ernie-1.0'
-#PRE_TRAINED_MODEL_NAME = '/home/liufarong/sdb1/Test_Bert/hfl_chinese-roberta-wwm-ext-large'
+# robert0
 tokenizer = BertTokenizer.from_pretrained(config.PRE_TRAINED_MODEL_NAME)
-base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # 加载预训练模型
-# model = ppnlp.transformers.BertForSequenceClassification.from_pretrained(MODEL_NAME, num_classes=2)
+base_model = BertModel.from_pretrained(config.PRE_TRAINED_MODEL_NAME)  # load pretain model
 
 all_dataset = RoleDataset(tokenizer, config.max_len, mode='train')
 #all_dataset = Subset(all_dataset, range(config.batch_size*1000, len(all_dataset)))  # 用于小规模调试
-train_size = int(len(all_dataset) * 0.9)
+train_size = int(len(all_dataset) * 0.9)  # use 90% data for train, 10% for validate
 validate_size = len(all_dataset) - train_size
-#train_loader = create_dataloader(trainset, config.batch_size, shuffle=False)
 train_dataset = torch.utils.data.Subset(all_dataset, range(train_size)) 
 validate_dataset = torch.utils.data.Subset(all_dataset, range(train_size, len(all_dataset)))
-# train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])
+# train_dataset, validate_dataset = torch.utils.data.random_split(trainset, [train_size, validate_size])  # because we need data is in order, random can`t meet need
 train_loader = create_dataloader(train_dataset, config.batch_size, shuffle=False)
 validate_loader = create_dataloader(validate_dataset, config.batch_size, shuffle=False)
 
@@ -49,7 +41,9 @@ testset = RoleDataset(tokenizer, config.max_len, mode='test')
 test_loader = create_dataloader(testset, config.batch_size, shuffle=False)
 
 model = EmotionClassifier(n_classes=6, bert=base_model).to(config.device)
+
 optimizer = AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+
 if config.load_model:
     load_checkpoint(torch.load(config.model_root, map_location=torch.device('cpu')), model, optimizer)
 
@@ -66,40 +60,34 @@ criterion = nn.MSELoss()
 writer = SummaryWriter(config.run_plot)
 
 fgm = FGM(model)
-# print(model)
-# ipdb.set_trace()
+
 def do_train(model, criterion, optimizer, scheduler, metric=None):
     model.train()
     tic_train = time.time()
-    log_steps = 100
+    log_steps = 1
     global_step = 0
     for epoch in range(config.EPOCH_NUM):
         losses = []
         losses_adv = []
-        #for index in range(len(train_dataset)):
-        #    start = max(0, index-config.batch_size//2)
-        #    end = min(len(train_dataset), index+config.batch_size//2)+1
-        #    # batch_data = train_dataset[start:end]
-        #    batch_data = Subset(train_dataset, range(start, end))
-        #    batch_size = end - start
-        #    offset = index - start
-        #    train_loader = create_dataloader(batch_data, batch_size, shuffle=False)
     
         for step, sample in enumerate(train_loader):
+            if config.debug:
+                if step == 3:
+                    break
             input_ids = sample["input_ids"].to(config.device)
             attention_mask = sample["attention_mask"].to(config.device)
             text = sample["text"]
             character = sample["character"]
             id = sample["id"]
-            pos = sample["pos"]
+            pos = sample["pos"].to(config.device)
+            labels = sample["labels"].to(config.device)
             # print(id, text)
-            # ipdb.set_trace()
+            #ipdb.set_trace()
 
             # 1. 正常训练
             optimizer.zero_grad()
             outputs = model(input_ids=input_ids, attention_mask=attention_mask, text=text, character=character, pos=pos)
 
-            # ipdb.set_trace()
             loss = criterion(outputs, sample["labels"].to(config.device))
 
             losses.append(loss.item())
