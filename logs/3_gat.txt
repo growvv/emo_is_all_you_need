@@ -1,0 +1,89 @@
+global step 100, epoch: 0, batch: 99, loss: 0.35570, loss_adv: 0.35856, speed: 0.40 step/s, lr: 0.0000199939
+global step 200, epoch: 0, batch: 199, loss: 0.53173, loss_adv: 0.53180, speed: 0.44 step/s, lr: 0.0000199878
+global step 300, epoch: 0, batch: 299, loss: 0.34226, loss_adv: 0.34739, speed: 0.44 step/s, lr: 0.0000199816
+global step 400, epoch: 0, batch: 399, loss: 0.39158, loss_adv: 0.42786, speed: 0.44 step/s, lr: 0.0000199755
+global step 500, epoch: 0, batch: 499, loss: 0.09430, loss_adv: 0.09562, speed: 0.44 step/s, lr: 0.0000199694
+=> Saving checkpoint
+score: 0.223477
+score: 0.679009
+global step 600, epoch: 1, batch: 88, loss: 0.20557, loss_adv: 0.21512, speed: 0.43 step/s, lr: 0.0000199633
+global step 700, epoch: 1, batch: 188, loss: 0.22176, loss_adv: 0.22934, speed: 0.43 step/s, lr: 0.0000199572
+global step 800, epoch: 1, batch: 288, loss: 0.19590, loss_adv: 0.20702, speed: 0.44 step/s, lr: 0.0000199510
+global step 900, epoch: 1, batch: 388, loss: 0.52375, loss_adv: 0.53630, speed: 0.44 step/s, lr: 0.0000199449
+global step 1000, epoch: 1, batch: 488, loss: 0.16556, loss_adv: 0.17099, speed: 0.45 step/s, lr: 0.0000199388
+=> Saving checkpoint
+score: 0.205988
+score: 0.687825
+global step 1100, epoch: 2, batch: 77, loss: 0.19756, loss_adv: 0.21746, speed: 0.44 step/s, lr: 0.0000199327
+global step 1200, epoch: 2, batch: 177, loss: 0.02610, loss_adv: 0.03721, speed: 0.44 step/s, lr: 0.0000199265
+global step 1300, epoch: 2, batch: 277, loss: 1.15317, loss_adv: 1.19377, speed: 0.44 step/s, lr: 0.0000199204
+global step 1400, epoch: 2, batch: 377, loss: 0.03619, loss_adv: 0.03825, speed: 0.44 step/s, lr: 0.0000199143
+global step 1500, epoch: 2, batch: 477, loss: 0.04622, loss_adv: 0.05244, speed: 0.45 step/s, lr: 0.0000199082
+=> Saving checkpoint
+score: 0.200316
+score: 0.690814
+global step 1600, epoch: 3, batch: 66, loss: 0.98517, loss_adv: 1.00788, speed: 0.44 step/s, lr: 0.0000199021
+global step 1700, epoch: 3, batch: 166, loss: 0.03927, loss_adv: 0.04766, speed: 0.44 step/s, lr: 0.0000198959
+global step 1800, epoch: 3, batch: 266, loss: 0.04236, loss_adv: 0.04856, speed: 0.44 step/s, lr: 0.0000198898
+global step 1900, epoch: 3, batch: 366, loss: 0.23693, loss_adv: 0.28038, speed: 0.45 step/s, lr: 0.0000198837
+global step 2000, epoch: 3, batch: 466, loss: 0.05417, loss_adv: 0.06743, speed: 0.45 step/s, lr: 0.0000198776
+=> Saving checkpoint
+score: 0.199563
+score: 0.691217
+global step 2100, epoch: 4, batch: 55, loss: 0.03256, loss_adv: 0.04047, speed: 0.44 step/s, lr: 0.0000198715
+global step 2200, epoch: 4, batch: 155, loss: 0.09770, loss_adv: 0.11592, speed: 0.44 step/s, lr: 0.0000198653
+global step 2300, epoch: 4, batch: 255, loss: 0.02519, loss_adv: 0.03673, speed: 0.45 step/s, lr: 0.0000198592
+global step 2400, epoch: 4, batch: 355, loss: 0.05494, loss_adv: 0.08290, speed: 0.45 step/s, lr: 0.0000198531
+global step 2500, epoch: 4, batch: 455, loss: 0.08672, loss_adv: 0.10035, speed: 0.45 step/s, lr: 0.0000198470
+=> Saving checkpoint
+score: 0.202819
+score: 0.689487
+global step 2600, epoch: 5, batch: 44, loss: 0.04963, loss_adv: 0.06196, speed: 0.44 step/s, lr: 0.0000198409
+global step 2700, epoch: 5, batch: 144, loss: 0.01425, loss_adv: 0.02105, speed: 0.44 step/s, lr: 0.0000198347
+global step 2800, epoch: 5, batch: 244, loss: 0.11199, loss_adv: 0.13636, speed: 0.44 step/s, lr: 0.0000198286
+global step 2900, epoch: 5, batch: 344, loss: 0.17770, loss_adv: 0.21711, speed: 0.44 step/s, lr: 0.0000198225
+global step 3000, epoch: 5, batch: 444, loss: 0.03743, loss_adv: 0.04549, speed: 0.45 step/s, lr: 0.0000198164
+=> Saving checkpoint
+score: 0.204061
+score: 0.688833
+global step 3100, epoch: 6, batch: 33, loss: 0.02797, loss_adv: 0.04200, speed: 0.44 step/s, lr: 0.0000198102
+global step 3200, epoch: 6, batch: 133, loss: 0.07136, loss_adv: 0.08747, speed: 0.44 step/s, lr: 0.0000198041
+global step 3300, epoch: 6, batch: 233, loss: 0.09152, loss_adv: 0.11141, speed: 0.44 step/s, lr: 0.0000197980
+global step 3400, epoch: 6, batch: 333, loss: 0.05609, loss_adv: 0.08399, speed: 0.44 step/s, lr: 0.0000197919
+global step 3500, epoch: 6, batch: 433, loss: 0.07976, loss_adv: 0.08937, speed: 0.44 step/s, lr: 0.0000197858
+=> Saving checkpoint
+score: 0.205879
+score: 0.687882
+global step 3600, epoch: 7, batch: 22, loss: 0.07160, loss_adv: 0.09060, speed: 0.44 step/s, lr: 0.0000197796
+global step 3700, epoch: 7, batch: 122, loss: 0.04460, loss_adv: 0.05513, speed: 0.44 step/s, lr: 0.0000197735
+global step 3800, epoch: 7, batch: 222, loss: 0.03191, loss_adv: 0.04422, speed: 0.44 step/s, lr: 0.0000197674
+global step 3900, epoch: 7, batch: 322, loss: 0.05570, loss_adv: 0.07747, speed: 0.44 step/s, lr: 0.0000197613
+global step 4000, epoch: 7, batch: 422, loss: 0.06211, loss_adv: 0.07692, speed: 0.44 step/s, lr: 0.0000197552
+=> Saving checkpoint
+score: 0.208766
+score: 0.686385
+global step 4100, epoch: 8, batch: 11, loss: 0.03841, loss_adv: 0.04513, speed: 0.44 step/s, lr: 0.0000197490
+global step 4200, epoch: 8, batch: 111, loss: 0.05697, loss_adv: 0.07312, speed: 0.44 step/s, lr: 0.0000197429
+global step 4300, epoch: 8, batch: 211, loss: 0.01377, loss_adv: 0.02557, speed: 0.44 step/s, lr: 0.0000197368
+global step 4400, epoch: 8, batch: 311, loss: 0.11386, loss_adv: 0.13804, speed: 0.44 step/s, lr: 0.0000197307
+global step 4500, epoch: 8, batch: 411, loss: 0.04485, loss_adv: 0.05698, speed: 0.44 step/s, lr: 0.0000197246
+=> Saving checkpoint
+score: 0.210873
+score: 0.685302
+global step 4600, epoch: 9, batch: 0, loss: 0.01028, loss_adv: 0.01525, speed: 0.44 step/s, lr: 0.0000197184
+global step 4700, epoch: 9, batch: 100, loss: 0.02872, loss_adv: 0.05930, speed: 0.44 step/s, lr: 0.0000197123
+global step 4800, epoch: 9, batch: 200, loss: 0.06958, loss_adv: 0.08392, speed: 0.44 step/s, lr: 0.0000197062
+global step 4900, epoch: 9, batch: 300, loss: 0.04231, loss_adv: 0.06311, speed: 0.44 step/s, lr: 0.0000197001
+global step 5000, epoch: 9, batch: 400, loss: 0.03058, loss_adv: 0.04496, speed: 0.44 step/s, lr: 0.0000196939
+global step 5100, epoch: 9, batch: 500, loss: 0.01784, loss_adv: 0.03046, speed: 0.44 step/s, lr: 0.0000196878
+=> Saving checkpoint
+score: 0.207549
+score: 0.687013
+21376
+21376
+                id                                            emotion
+0  34170_0002_A_12  0.004628161899745464,0.02315468154847622,0.037...
+1  34170_0002_A_14  0.0021483798045665026,0.021440880373120308,0.0...
+2  34170_0003_A_16  0.016628967598080635,0.039841845631599426,0.03...
+3  34170_0003_A_17  0.00665272306650877,0.02546463906764984,0.0384...
+4  34170_0003_A_18  0.0019753258675336838,0.0254678875207901,0.038...
