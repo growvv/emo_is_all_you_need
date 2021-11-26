@@ -1,6 +1,8 @@
 import re
 import ipdb
 
+'''
+都不如下面一个
 def myreplace_1(matched):
     # ipdb.set_trace()
     matched = matched.group()
@@ -20,11 +22,13 @@ def myreplace_three(matched):
     # ipdb.set_trace()
     matched = matched.group()
     return matched[:2] + '和' + matched[2:4] + '和' + matched[4:]
+'''
 
+
+# 给匹配到的角色名前后加空格
 def myreplace(matched):
     matched = matched.group()
     return ' ' +  matched + ' '
-
 
 def clear_data(str):
     #if str ==  "":
