@@ -1,5 +1,7 @@
 ## CCF BDCI剧本角色情感识别  榜上无名方案
 
+[TOC]
+
 ### 赛题分析
 
 ### 赛题背景
@@ -52,9 +54,7 @@ haha, 没有31号，因为它没有边与其他节点相连
 
 此外，评测标准，也是均方根误差（RMSE）
 
-$$
-\frac{1}{m} \sum_{i=1}^{m}\left(y_{i}-\hat{y}_{i}\right)^{2}
-$$
+$$\frac{1}{m} \sum_{i=1}^{m}\left(y_{i}-\hat{y}_{i}\right)^{2}$$
 
 ### 代码实现
 - train.py: 主循环，训练过程
@@ -93,9 +93,11 @@ runs下: tensorboard记录的loss信息
 results下: 预测结果
 
 **1. 开始训练**
+
 `python train.py >> logs/train.log 2>&1`
 
 **2. 修正结果**
+
 `python improve_result.py`
 
 
