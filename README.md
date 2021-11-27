@@ -14,6 +14,7 @@
     - [训练时间](#训练时间)
   - [提交结果](#提交结果)
   - [经验总结](#经验总结)
+  - [参考链接](#参考链接)
 ### 赛题分析
 
 ### 赛题背景
@@ -171,5 +172,14 @@ checkpoint: 训练10轮后的模型
 - 输入数据在训练前测试好，训练爆出bad case再清洗非常浪费时间
 - 数据增强、伪标签、调参和模型融合是最有效的提升手段，自己想当然的idea往往瞎择腾
 
+### 参考链接
 
+[官方baseline-paddle版](https://aistudio.baidu.com/aistudio/projectdetail/2423977)
 
+[*剧本角色情感识别baseline-pytorch-v1](https://zhuanlan.zhihu.com/p/422906187)
+
+[剧本角色情感识别baseline-pytorch-v2](https://zhuanlan.zhihu.com/p/428941904)
+
+[CCF BDCI 剧本角色情感识别：多标签多分类学习开源方案](https://zhuanlan.zhihu.com/p/413484588)
+
+[CCF BDCI 剧本角色情感识别第二版分享:多任务学习开源方案](https://zhuanlan.zhihu.com/p/434097705)
