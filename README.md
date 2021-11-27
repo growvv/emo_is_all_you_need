@@ -10,6 +10,7 @@
     - [损失函数](#损失函数)
   - [代码实现](#代码实现)
   - [训练结果](#训练结果)
+    - [存档](#存档)
     - [训练时间](#训练时间)
   - [提交结果](#提交结果)
   - [经验总结](#经验总结)
@@ -127,6 +128,15 @@ results下: 预测结果
 
 
 一些日志：见logs文件夹
+
+#### 存档
+预训练模型: hfl_chinese_roberta_wwm_ext（修改了vocab.txt）
+
+链接: https://pan.baidu.com/s/132viu59zJvu5Emb1IS26SQ  密码: be2d
+
+checkpoint: 训练10轮后的模型
+
+链接: https://pan.baidu.com/s/132viu59zJvu5Emb1IS26SQ  密码: be2d
 
 #### 训练时间
 32000+训练集，batch_size=64, epoch=10, 
