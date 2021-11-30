@@ -17,6 +17,8 @@
   - [参考链接](#参考链接)
 ### 赛题分析
 
+[比赛官网](https://www.datafountain.cn/competitions/518)
+
 ### 赛题背景
 
  剧本对影视行业的重要性不言而喻。一部好的剧本，不光是好口碑和大流量的基础，也能带来更高的商业回报。剧本分析是影视内容生产链条的第一环，其中剧本角色的情感识别是一个非常重要的任务，主要是对剧本中每句对白和动作描述中涉及到的每个角色从多个维度进行分析并识别出情感。相对于通常的新闻、评论性文本的情感分析，有其独有的业务特点和挑战。
@@ -149,7 +151,7 @@ checkpoint: 训练10轮后的模型
 
 | 模型 | 得分 |
 | :--- | :--- |
-| ensemble(['./results/bert_gat_adv_improve.tsv', './results/bert_gat_adv_gat11_improve.tsv', './results/bert_gat_normal_improve.tsv'], [1/3, 1/3, 1/3]) | **${0.69311495076}^{(3)}$** |
+| ensemble(['./results/bert_gat_adv_improve.tsv', './results/bert_gat_adv_gat11_improve.tsv', './results/bert_gat_normal_improve.tsv'], [1/3, 1/3, 1/3]) | **0.69311495076** |
 | ['./results/bert_gat_adv_improve.tsv', './results/bert_gat_adv_gat11_improve.tsv', './results/bert_gat_normal_improve.tsv'], [0.25,0.5,0.25]| 0.69292791520|
 |bert+gat，gat采用3层卷积，gat的dropout调小| 0.69019270470|
 |在epoch_num=5的基础上，固定bert，再训练3轮|0.69274829981|
@@ -157,12 +159,12 @@ checkpoint: 训练10轮后的模型
 | ernie修正版  emo < 0.2| 0.69204910612 |
 | ernie修正版  emo < 0.5| 0.68790208608 |
 |roberta_large | 0.68978064345|
-| 未加场景，角色*2，epoch_num=5，未丢, ernie1.0 | ${0.69554328794}^{(1)}$ |
+| 未加场景，角色*2，epoch_num=5，未丢, ernie1.0 | **0.69554328794** |
 |epoch_num=5, output*3, warmup_proportion=0.0, 减少50%| 0.68196819294|
 |outputs*3, 减少50%的全0 | 0.69005280956|
 |随机扔掉30%的全0数据|0.69222025156|
 |增大batch_size=32, outputs*4|0.68920540598|
-|改成回归| **${0.69466536245}^{(2)}$**|
+|改成回归| **0.69466536245**|
 | 测试能否交小数| 0.66664726448|
 |全0？？| 0.66668028392 |
 
