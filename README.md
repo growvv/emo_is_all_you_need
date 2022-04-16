@@ -135,11 +135,11 @@ results下: 预测结果
 #### 存档
 预训练模型: hfl_chinese_roberta_wwm_ext（修改了vocab.txt）
 
-链接: https://pan.baidu.com/s/132viu59zJvu5Emb1IS26SQ  密码: be2d
+链接: https://pan.baidu.com/s/1xJdL71RvLb-G4bYUuwmBpw 提取码: qq4s 
 
 checkpoint: 训练10轮后的模型
 
-链接: https://pan.baidu.com/s/132viu59zJvu5Emb1IS26SQ  密码: be2d
+链接: https://pan.baidu.com/s/1frhD-ZzwNn4mGJcduL1i8Q 提取码: swag
 
 #### 训练时间
 32000+训练集，batch_size=64, epoch=10, 
